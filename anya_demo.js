@@ -3,13 +3,18 @@ var test = require('tape');
 var util = require('util');
 
 //
+// Get the Docker Host IP from command line
+//
+var DOCKER_HOST_IP = process.argv[2];
+console.log("Docker Host IP: " + DOCKER_HOST_IP + "\n");
+
+//
 // Required configuration settings
 //
-
 var SDK_KEYSTORE = "/tmp/keyValStore";
-var SDK_MEMBERSRVC_ADDRESS = "grpc://localhost:7054";
-var SDK_PEER_ADDRESS = "grpc://localhost:7051";
-var SDK_EVENTHUB_ADDRESS = "grpc://localhost:7053";
+var SDK_MEMBERSRVC_ADDRESS = "grpc://" + DOCKER_HOST_IP + ":7054";
+var SDK_PEER_ADDRESS = "grpc://" + DOCKER_HOST_IP + ":7051";
+var SDK_EVENTHUB_ADDRESS = "grpc://" + DOCKER_HOST_IP + ":7053";
 
 //
 //  Create a test chain object
@@ -33,7 +38,7 @@ console.log("Setting peer address to: " + SDK_PEER_ADDRESS);
 chain.addPeer(SDK_PEER_ADDRESS);
 
 // Set the eventHub address
-console.log("Setting eventHubAddr address to: " + SDK_EVENTHUB_ADDRESS);
+console.log("Setting eventHubAddr address to: " + SDK_EVENTHUB_ADDRESS + "\n");
 chain.eventHubConnect(SDK_EVENTHUB_ADDRESS);
 process.on('exit', function () {
   chain.eventHubDisconnect();
@@ -44,7 +49,7 @@ process.on('exit', function () {
 chain.setDevMode(false);
 
 //
-// Declare test variables that will be used across multiple tests.
+// Declare test variables that will be used across multiple tests
 //
 
 // Member object returned after registration and enrollment
