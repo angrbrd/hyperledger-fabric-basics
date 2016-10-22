@@ -1,5 +1,4 @@
-// var hfc = require('hfc');
-var hfc = require('../..');
+var hfc = require('hfc');
 var test = require('tape');
 var util = require('util');
 
@@ -43,7 +42,6 @@ process.on('exit', function () {
 // Set the chaincode deployment mode to network, i.e. chaincode runs inside
 // a Docker container
 chain.setDevMode(false);
-console.log("$SDK_DEPLOY_MODE: " + chain.isDevMode());
 
 //
 // Declare test variables that will be used across multiple tests.
