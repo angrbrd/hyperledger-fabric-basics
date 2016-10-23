@@ -1,5 +1,20 @@
+// Hyperledger Fabric Client to connect to the Fabric network
 var hfc = require('hfc');
+// For printing formatted things
 var util = require('util');
+// Express to listen to browser requests
+var express = require('express');
+var app = express();
+// Debug modules to aid with debugging
+var debugModule = require('debug');
+var debug = debugModule('crowd_fund');
+
+////////////////////////////////////////////////////////////////////////////////
+// The fist part of this application configures all the required settings the //
+// app will need to connect to the Fabric network, such as the membership     //
+// service address, the peer address(es), the eventHub address for listening  //
+// to incoming events, etc.                                                   //
+////////////////////////////////////////////////////////////////////////////////
 
 //
 // Get the Docker Host IP from command line
@@ -79,6 +94,13 @@ var app_user;
 // chaincodeID will store the chaincode ID value after deployment which is
 // later used to execute invocations and queries
 var chaincodeID;
+
+////////////////////////////////////////////////////////////////////////////////
+// The second part of this app does the required setup to register itself     //
+// with the Fabric network. Specifically, it enrolls and registers the        //
+// required users and then deploys the chaincode to the network. The          //
+// chaincode will then be ready to take invoke and query requests.            //
+////////////////////////////////////////////////////////////////////////////////
 
 //
 // Enroll the WebAppAdmin member. WebAppAdmin member is already registered
@@ -175,6 +197,8 @@ function deployChaincode() {
         chaincodeID = results.chaincodeID;
         console.log(util.format("Successfully deployed chaincode: request=%j, "
 					+ "response=%j" + "\n", deployRequest, results));
+		// The chaincode is successfully deployed, start the listener port
+		 startListener();
     });
     deployTx.on('error', function (err) {
         // Deploy request failed
@@ -184,11 +208,27 @@ function deployChaincode() {
     });
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// The third part of this app configures an HTTP server in order to listen    //
+// for incoming requests. These requests will then invoke or query the        //
+// chancode and return a response to the client.                              //
+////////////////////////////////////////////////////////////////////////////////
+
+// Assign any listening port for your webApp
+var app_port = 3000;
+
+// Enable CORS for ease of development and testing
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
 //
-// Create and issue a chaincode query request.
+// Add the route for a chaincode query request
 //
-function queryChaincode() {
-    // Construct the query request
+app.get("/state", function(req, res) {
+	// Construct the query request
     var queryRequest = {
         // Name (hash) required for query
         chaincodeID: chaincodeID,
@@ -199,7 +239,6 @@ function queryChaincode() {
     };
 
     // Trigger the query transaction
-    app_user.setTCertBatchSize(1);
     var queryTx = app_user.query(queryRequest);
 
     // Print the query results
@@ -208,19 +247,26 @@ function queryChaincode() {
         console.log(util.format("Successfully queried existing chaincode state: "
 					+ "request=%j, response=%j, value=%s", queryRequest, results,
 					results.result.toString()));
+
+		res.status(200).json({ value: results.result.toString() });
 	});
     queryTx.on('error', function (err) {
         // Query failed
-        console.log(util.format("ERROR: Failed to query existing chaincode " +
-					+ "state: request=%j, error=%j", queryRequest, err));
-		process.exit(1);
+		var errorMsg = util.format("ERROR: Failed to query existing chaincode " +
+					 + "state: request=%j, error=%j", queryRequest, err);
+
+        console.log(errorMsg);
+
+		res.status(500).json({ error: errorMsg });
 	});
-}
+});
 
 //
-// Create and issue a chaincode invoke request.
+// Add the route for a chaincode invoke request.
 //
-function invokeChaincode() {
+app.post('/transactions', function(req, res) {
+	console.log("body: " + req.body);
+
 	// Construct the invoke request
     var invokeRequest = {
         // Name (hash) required for invoke
@@ -239,11 +285,23 @@ function invokeChaincode() {
         // Invoke transaction submitted successfully
         console.log(util.format("Successfully submitted chaincode invoke " +
 					" transaction: request=%j, response=%j", invokeRequest, results));
+
+		res.status(200).json({ status: "submitted" });
     });
     invokeTx.on('error', function (err) {
         // Invoke transaction submission failed
-        console.log(util.format("ERROR: Failed to submit chaincode invoke "
-					+ "transaction: request=%j, error=%j", invokeRequest, err));
-		process.exit(1);
+        var errorMsg = util.format("ERROR: Failed to submit chaincode invoke "
+					+ "transaction: request=%j, error=%j", invokeRequest, err);
+
+		console.log(errorMsg);
+
+		res.status(500).json({ error: errorMsg });
 	});
+});
+
+// Function that will start the request listener
+function startListener() {
+	console.log("Starting WebApp on port " + app_port);
+	app.listen(app_port);
+	console.log("WebApp is now listening on port " + app_port + "\n");
 }
