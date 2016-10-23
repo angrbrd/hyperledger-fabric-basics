@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ship Money!</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			$("#query").click(function() {
+				$.get("http://localhost:3000/state", function(data, status) {
+					console.log(data);
+					document.getElementById("queryResult").innerHTML = "Value: " + data.value;
+				});
+			});
+			$("#invoke").click(function() {
+				$.post("http://localhost:3000/transactions", function(data, status) {
+					document.getElementById("invokeResult").innerHTML = "Status: " + data.status;
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+
+<button id="query">Query</button>
+<p id="queryResult"></p>
+
+<button id="invoke">Invoke</button>
+<p id="invokeResult"></p>
+
+</body>
+</html>
