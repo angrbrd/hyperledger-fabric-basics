@@ -2,7 +2,7 @@
   "name": "hyperledger-basics",
   "version": "0.0.1",
   "description": "A Node.js web application that demonstrates utilizing Hyperledger Fabric Client (hfc) to interact with a Hyperledger network.",
-  "main": "anya_demo.js",
+  "main": "crowd_fund_demo.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
