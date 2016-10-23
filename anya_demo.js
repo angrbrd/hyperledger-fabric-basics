@@ -13,7 +13,12 @@ console.log("Docker Host IP: " + DOCKER_HOST_IP + "\n");
 //
 var SDK_KEYSTORE = "/tmp/keyValStore";
 var SDK_MEMBERSRVC_ADDRESS = "grpc://" + DOCKER_HOST_IP + ":7054";
-var SDK_PEER_ADDRESS = "grpc://" + DOCKER_HOST_IP + ":7051";
+var SDK_PEER_ADDRESSES = [
+	"grpc://" + DOCKER_HOST_IP + ":7051",
+	"grpc://" + DOCKER_HOST_IP + ":8051",
+	"grpc://" + DOCKER_HOST_IP + ":9051",
+	"grpc://" + DOCKER_HOST_IP + ":10051"
+];
 var SDK_EVENTHUB_ADDRESS = "grpc://" + DOCKER_HOST_IP + ":7053";
 
 //
@@ -33,9 +38,19 @@ chain.setKeyValStore(hfc.newFileKeyValStore(SDK_KEYSTORE));
 console.log("Setting membersrvc address to: " + SDK_MEMBERSRVC_ADDRESS);
 chain.setMemberServicesUrl(SDK_MEMBERSRVC_ADDRESS);
 
-// Set the peer address
-console.log("Setting peer address to: " + SDK_PEER_ADDRESS);
-chain.addPeer(SDK_PEER_ADDRESS);
+// Set the peer address(es) depending on the network type
+if (process.argv[3] == "single-peer") {
+	console.log("Setting peer address to: " + SDK_PEER_ADDRESSES[0]);
+	chain.addPeer(SDK_PEER_ADDRESSES[0]);
+} else if (process.argv[3] == "four-peer") {
+	SDK_PEER_ADDRESSES.forEach(function(peer_address) {
+		console.log("Adding peer address: " + peer_address);
+		chain.addPeer(peer_address);
+	});
+} else {
+	console.log("ERROR: Please select either a `single-peer` or a `four-peer` network!");
+	process.exit(1);
+}
 
 // Set the eventHub address
 console.log("Setting eventHubAddr address to: " + SDK_EVENTHUB_ADDRESS + "\n");
