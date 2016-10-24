@@ -5,6 +5,8 @@ var util = require('util');
 // Express to listen to browser requests
 var express = require('express');
 var app = express();
+// Body parser for parsing the request body
+var bodyParser = require('body-parser')
 // Debug modules to aid with debugging
 var debugModule = require('debug');
 var debug = debugModule('crowd_fund');
@@ -210,7 +212,7 @@ function deployChaincode() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // The third part of this app configures an HTTP server in order to listen    //
-// for incoming requests. These requests will then invoke or query the        //
+// for incoming HTTP requests. These requests will then invoke or query the   //
 // chancode and return a response to the client.                              //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -224,34 +226,39 @@ app.use(function(req, res, next) {
 	next();
 });
 
+// Use body-parer to parse the JSON formatted request payload
+app.use(bodyParser.json());
+
 //
-// Add the route for a chaincode query request
+// Add route for a chaincode query request for a specific state variable
 //
-app.get("/state", function(req, res) {
+app.get("/state/:var", function(req, res) {
+	// State variable to retrieve
+	var stateVar = req.params.var;
+
 	// Construct the query request
     var queryRequest = {
         // Name (hash) required for query
         chaincodeID: chaincodeID,
         // Function to trigger
         fcn: "query",
-        // Existing state variable to retrieve
-        args: ["a"]
+        // State variable to retrieve
+        args: [stateVar]
     };
 
     // Trigger the query transaction
     var queryTx = app_user.query(queryRequest);
 
-    // Print the query results
+    // Query completed successfully
     queryTx.on('complete', function (results) {
-        // Query completed successfully
         console.log(util.format("Successfully queried existing chaincode state: "
 					+ "request=%j, response=%j, value=%s", queryRequest, results,
 					results.result.toString()));
 
-		res.status(200).json({ value: results.result.toString() });
+		res.status(200).json({ "value": results.result.toString() });
 	});
+	// Query failed
     queryTx.on('error', function (err) {
-        // Query failed
 		var errorMsg = util.format("ERROR: Failed to query existing chaincode " +
 					 + "state: request=%j, error=%j", queryRequest, err);
 
@@ -262,10 +269,11 @@ app.get("/state", function(req, res) {
 });
 
 //
-// Add the route for a chaincode invoke request.
+// Add route for a chaincode invoke request
 //
 app.post('/transactions', function(req, res) {
-	console.log("body: " + req.body);
+	// Ammount to transfer
+	var ammount = req.body.ammount;
 
 	// Construct the invoke request
     var invokeRequest = {
@@ -274,22 +282,21 @@ app.post('/transactions', function(req, res) {
         // Function to trigger
         fcn: "invoke",
         // Parameters for the invoke function
-        args: ["a", "b", "10"]
+        args: ["a", "b", ammount]
     };
 
     // Trigger the invoke transaction
     var invokeTx = app_user.invoke(invokeRequest);
 
-    // Print the invoke results
+    // Invoke transaction submitted successfully
     invokeTx.on('submitted', function (results) {
-        // Invoke transaction submitted successfully
         console.log(util.format("Successfully submitted chaincode invoke " +
 					" transaction: request=%j, response=%j", invokeRequest, results));
 
 		res.status(200).json({ status: "submitted" });
     });
+	// Invoke transaction submission failed
     invokeTx.on('error', function (err) {
-        // Invoke transaction submission failed
         var errorMsg = util.format("ERROR: Failed to submit chaincode invoke "
 					+ "transaction: request=%j, error=%j", invokeRequest, err);
 
@@ -299,7 +306,9 @@ app.post('/transactions', function(req, res) {
 	});
 });
 
-// Function that will start the request listener
+//
+// Start the HTTP server to listen for incoming requests
+//
 function startListener() {
 	console.log("Starting WebApp on port " + app_port);
 	app.listen(app_port);
