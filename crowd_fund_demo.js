@@ -187,7 +187,7 @@ function deployChaincode() {
         // Function to trigger
         fcn: "init",
         // Arguments to the initializing function
-        args: ["a", "100", "b", "200"],
+        args: ["account", "0"],
     };
 
     // Trigger the deploy transaction
@@ -282,7 +282,7 @@ app.post('/transactions', function(req, res) {
         // Function to trigger
         fcn: "invoke",
         // Parameters for the invoke function
-        args: ["a", "b", ammount]
+        args: ["account", ammount]
     };
 
     // Trigger the invoke transaction
