@@ -5,15 +5,45 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script>
 		$(document).ready(function() {
-			$("#query").click(function() {
-				$.get("http://localhost:3000/state", function(data, status) {
-					console.log(data);
-					document.getElementById("queryResult").innerHTML = "Value: " + data.value;
+			// Query the value of A
+			$("#queryA").click(function() {
+				$.ajax({
+					dataType: 'json',
+					url: 'http://localhost:3000/state/a',
+					success: function(data, status) {
+						console.log(data);
+						document.getElementById("queryResultA").innerHTML = "A = " + data.value;
+					}
 				});
 			});
-			$("#invoke").click(function() {
-				$.post("http://localhost:3000/transactions", function(data, status) {
-					document.getElementById("invokeResult").innerHTML = "Status: " + data.status;
+			// Query the value of B
+			$("#queryB").click(function() {
+				$.ajax({
+					dataType: 'json',
+					url: 'http://localhost:3000/state/b',
+					success: function(data, status) {
+						console.log(data);
+						document.getElementById("queryResultB").innerHTML = "B = " + data.value;
+					}
+				});
+			});
+			// Transfer some amount from A to B
+			$("#transfer").click(function() {
+				var ammount = $("input").val();
+				console.log("ammount = " + ammount);
+
+				$.ajax({
+				    beforeSend: function(xhrObj){
+				        xhrObj.setRequestHeader("Content-Type","application/json");
+				        xhrObj.setRequestHeader("Accept","application/json");
+				    },
+				    type: "POST",
+				    url: 'http://localhost:3000/transactions',
+					data: JSON.stringify({ "ammount": ammount }),
+				    dataType: "json",
+				    success: function(result) {
+				       console.log("Status: " + result.status);
+				    }
 				});
 			});
 		});
@@ -21,11 +51,16 @@
 </head>
 <body>
 
-<button id="query">Query</button>
-<p id="queryResult"></p>
+<button id="queryA">Query A</button>
+<button id="queryB">Query B</button>
+<p id="queryResultA"></p>
+<p id="queryResultB"></p>
 
-<button id="invoke">Invoke</button>
-<p id="invokeResult"></p>
+Ammount:
+<input type="text">
+
+<button id="transfer">Transfer</button>
+<p id="transferResult"></p>
 
 </body>
 </html>
