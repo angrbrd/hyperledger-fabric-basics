@@ -70,7 +70,7 @@ if (process.argv[3] == "single-peer") {
 	});
 } else {
 	console.log("ERROR: Please select either a `single-peer` " +
-	 			" or a `four-peer` network!");
+	" or a `four-peer` network!");
 	process.exit(1);
 }
 
@@ -110,21 +110,21 @@ var chaincodeID;
 // configuration file for the membership services Docker container.
 //
 chain.getMember("WebAppAdmin", function (err, WebAppAdmin) {
-    if (err) {
+	if (err) {
 		console.log("ERROR: Failed to get WebAppAdmin member -- " + err);
 		process.exit(1);
-    } else {
-        console.log("Successfully got WebAppAdmin member.");
+	} else {
+		console.log("Successfully got WebAppAdmin member.");
 
-        // Enroll the WebAppAdmin member with the certificate authority using
-        // the one time password hard coded inside the membersrvc.yaml.
-        pw = "DJY27pEnl16d";
-        WebAppAdmin.enroll(pw, function (err, enrollment) {
-            if (err) {
-                console.log("ERROR: Failed to enroll WebAppAdmin member -- "
-							+ err);
-                process.exit(1);
-            } else {
+		// Enroll the WebAppAdmin member with the certificate authority using
+		// the one time password hard coded inside the membersrvc.yaml.
+		pw = "DJY27pEnl16d";
+		WebAppAdmin.enroll(pw, function (err, enrollment) {
+			if (err) {
+				console.log("ERROR: Failed to enroll WebAppAdmin member -- " +
+				err);
+				process.exit(1);
+			} else {
 				// Set the WebAppAdmin as the designated chain registrar
 				console.log("Successfully enrolled WebAppAdmin member.");
 				console.log("Setting WebAppAdmin as chain registrar.");
@@ -133,9 +133,9 @@ chain.getMember("WebAppAdmin", function (err, WebAppAdmin) {
 				// Register a new user with WebAppAdmin as the chain registrar
 				console.log("Registering user `WebAppUser_1`.");
 				registerUser("WebApp_user1");
-            }
-        });
-    }
+			}
+		});
+	}
 });
 
 //
@@ -143,13 +143,13 @@ chain.getMember("WebAppAdmin", function (err, WebAppAdmin) {
 // This will be performed by the member with registrar authority, WebAppAdmin.
 //
 function registerUser(user_name) {
-    // Register and enroll the user
-    chain.getMember(user_name, function (err, user) {
-        if (err) {
-            console.log("ERROR: Failed to get " + user.getName() + " -- ", err);
+	// Register and enroll the user
+	chain.getMember(user_name, function (err, user) {
+		if (err) {
+			console.log("ERROR: Failed to get " + user.getName() + " -- ", err);
 			process.exit(1);
-        } else {
-            app_user = user;
+		} else {
+			app_user = user;
 
 			// User may not be enrolled yet. Perform both registration
 			// and enrollment.
@@ -159,20 +159,20 @@ function registerUser(user_name) {
 			};
 			app_user.registerAndEnroll(registrationRequest, function (err, member) {
 				if (err) {
-					console.log("ERROR: Failed to enroll "
-								+ app_user.getName() + " -- " + err);
+					console.log("ERROR: Failed to enroll " +
+					app_user.getName() + " -- " + err);
 					process.exit(1);
 				} else{
-		            console.log("Successfully registered and enrolled "
-								+ app_user.getName() + ".\n");
+					console.log("Successfully registered and enrolled " +
+					app_user.getName() + ".\n");
 
 					// Deploy a chaincode with the new user
 					console.log("Deploying chaincode now...");
 					deployChaincode()
 				}
 			});
-        }
-    });
+		}
+	});
 }
 
 //
@@ -180,34 +180,34 @@ function registerUser(user_name) {
 // a local directory in the user's $GOPATH.
 //
 function deployChaincode() {
-    // Construct the deploy request
-    var deployRequest = {
+	// Construct the deploy request
+	var deployRequest = {
 		// Path (under $GOPATH/src) required for deploy in network mode
 		chaincodePath: "crowd_fund_chaincode",
-        // Function to trigger
-        fcn: "init",
-        // Arguments to the initializing function
-        args: ["account", "0"],
-    };
+		// Function to trigger
+		fcn: "init",
+		// Arguments to the initializing function
+		args: ["account", "0"],
+	};
 
-    // Trigger the deploy transaction
-    var deployTx = app_user.deploy(deployRequest);
+	// Trigger the deploy transaction
+	var deployTx = app_user.deploy(deployRequest);
 
-    // Print the successfull deploy results
-    deployTx.on('complete', function (results) {
-        // Set the chaincodeID for subsequent tests
-        chaincodeID = results.chaincodeID;
-        console.log(util.format("Successfully deployed chaincode: request=%j, "
-					+ "response=%j" + "\n", deployRequest, results));
+	// Print the successfull deploy results
+	deployTx.on('complete', function (results) {
+		// Set the chaincodeID for subsequent tests
+		chaincodeID = results.chaincodeID;
+		console.log(util.format("Successfully deployed chaincode: request=%j, " +
+		"response=%j" + "\n", deployRequest, results));
 		// The chaincode is successfully deployed, start the listener port
 		 startListener();
-    });
-    deployTx.on('error', function (err) {
-        // Deploy request failed
-        console.log(util.format("ERROR: Failed to deploy chaincode: request=%j, "
-					+ "error=%j", deployRequest, err));
+	});
+	deployTx.on('error', function (err) {
+		// Deploy request failed
+		console.log(util.format("ERROR: Failed to deploy chaincode: request=%j, " +
+		"error=%j", deployRequest, err));
 		process.exit(1);
-    });
+	});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,32 +237,31 @@ app.get("/state/:var", function(req, res) {
 	var stateVar = req.params.var;
 
 	// Construct the query request
-    var queryRequest = {
-        // Name (hash) required for query
-        chaincodeID: chaincodeID,
-        // Function to trigger
-        fcn: "query",
-        // State variable to retrieve
-        args: [stateVar]
-    };
+	var queryRequest = {
+		// Name (hash) required for query
+		chaincodeID: chaincodeID,
+		// Function to trigger
+		fcn: "query",
+		// State variable to retrieve
+		args: [stateVar]
+	};
 
-    // Trigger the query transaction
-    var queryTx = app_user.query(queryRequest);
+	// Trigger the query transaction
+	var queryTx = app_user.query(queryRequest);
 
-    // Query completed successfully
-    queryTx.on('complete', function (results) {
-        console.log(util.format("Successfully queried existing chaincode state: "
-					+ "request=%j, response=%j, value=%s", queryRequest, results,
-					results.result.toString()));
+	// Query completed successfully
+	queryTx.on('complete', function (results) {
+		console.log(util.format("Successfully queried existing chaincode state: " +
+		"request=%j, response=%j, value=%s", queryRequest, results, results.result.toString()));
 
 		res.status(200).json({ "value": results.result.toString() });
 	});
 	// Query failed
-    queryTx.on('error', function (err) {
+	queryTx.on('error', function (err) {
 		var errorMsg = util.format("ERROR: Failed to query existing chaincode " +
-					 + "state: request=%j, error=%j", queryRequest, err);
+		"state: request=%j, error=%j", queryRequest, err);
 
-        console.log(errorMsg);
+		console.log(errorMsg);
 
 		res.status(500).json({ error: errorMsg });
 	});
@@ -276,29 +275,29 @@ app.post('/transactions', function(req, res) {
 	var ammount = req.body.ammount;
 
 	// Construct the invoke request
-    var invokeRequest = {
-        // Name (hash) required for invoke
-        chaincodeID: chaincodeID,
-        // Function to trigger
-        fcn: "invoke",
-        // Parameters for the invoke function
-        args: ["account", ammount]
-    };
+	var invokeRequest = {
+		// Name (hash) required for invoke
+		chaincodeID: chaincodeID,
+		// Function to trigger
+		fcn: "invoke",
+		// Parameters for the invoke function
+		args: ["account", ammount]
+	};
 
-    // Trigger the invoke transaction
-    var invokeTx = app_user.invoke(invokeRequest);
+	// Trigger the invoke transaction
+	var invokeTx = app_user.invoke(invokeRequest);
 
-    // Invoke transaction submitted successfully
-    invokeTx.on('submitted', function (results) {
-        console.log(util.format("Successfully submitted chaincode invoke " +
-					" transaction: request=%j, response=%j", invokeRequest, results));
+	// Invoke transaction submitted successfully
+	invokeTx.on('submitted', function (results) {
+		console.log(util.format("Successfully submitted chaincode invoke " +
+		"transaction: request=%j, response=%j", invokeRequest, results));
 
 		res.status(200).json({ status: "submitted" });
-    });
+	});
 	// Invoke transaction submission failed
-    invokeTx.on('error', function (err) {
-        var errorMsg = util.format("ERROR: Failed to submit chaincode invoke "
-					+ "transaction: request=%j, error=%j", invokeRequest, err);
+	invokeTx.on('error', function (err) {
+		var errorMsg = util.format("ERROR: Failed to submit chaincode invoke " +
+		"transaction: request=%j, error=%j", invokeRequest, err);
 
 		console.log(errorMsg);
 
