@@ -18,8 +18,8 @@
 			});
 			// Add a given number of units to the account value
 			$("#donate").click(function() {
-				var ammount = $("input").val();
-				console.log("donation ammount = " + ammount);
+				var amount = $("input").val();
+				console.log("donation amount = " + amount);
 
 				$.ajax({
 				    beforeSend: function(xhrObj){
@@ -28,7 +28,7 @@
 				    },
 				    type: "POST",
 				    url: 'http://localhost:3000/transactions',
-					data: JSON.stringify({ "ammount": ammount }),
+					data: JSON.stringify({ "amount": amount }),
 				    dataType: "json",
 				    success: function(result) {
 				       console.log("Status: " + result.status);
@@ -43,7 +43,7 @@
 <button id="queryAccount">Get Account Value</button>
 <p id="accountValue"></p>
 
-Donation Ammount ($):
+Donation Amount ($):
 <input type="text">
 
 <button id="donate">Donate</button>

@@ -271,8 +271,8 @@ app.get("/state/:var", function(req, res) {
 // Add route for a chaincode invoke request
 //
 app.post('/transactions', function(req, res) {
-	// Ammount to transfer
-	var ammount = req.body.ammount;
+	// Amount to transfer
+	var amount = req.body.amount;
 
 	// Construct the invoke request
 	var invokeRequest = {
@@ -281,7 +281,7 @@ app.post('/transactions', function(req, res) {
 		// Function to trigger
 		fcn: "invoke",
 		// Parameters for the invoke function
-		args: ["account", ammount]
+		args: ["account", amount]
 	};
 
 	// Trigger the invoke transaction
