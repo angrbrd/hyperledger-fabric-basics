@@ -2,9 +2,9 @@
 
 ## Overview
 
-The goal of this tutorial is to show you how to get started writing applications and chaincode (smart contracts) for the Hyperledger Fabric network on your local environment.
+The goal of this tutorial is to show you how to get started writing applications and chaincode (smart contracts) for the [Hyperledger](https://www.hyperledger.org/) Fabric network in your local environment.
 
-**Note:** These instructions were witten and tested on a Mac. If additional tweeks are needed when running on a Windows or a Linux machine, I will try to add them shortly. Please stay tuned!
+**Note:** These instructions were witten and tested on a Mac. Instructions may vary slightly if you run on a Windows or a Linux machine and I will add clarifications specific to other systems shortly. Please stay tuned!
 
 1. [Prerequisites](#prerequisites) 	
 2. [Start A Fabric Network](#start-a-fabric-network)
@@ -28,45 +28,35 @@ This tutorial requires you to install:
 
 You need to install Git in order to clone the repository containing the  Docker images for running the Hyperledger fabric as well as the sample program in this repository. 
 
-To install Git...
-
-XXXXXX ADD HERE XXXXXX
+To install Git, follow the instructions [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) for the specific system that you running on. Next, intall the Git Large File Storage (Git LFS) plug-in from [here](https://git-lfs.github.com/) as the chaincode dependecy file you will be downloading from this repository is quite large and had to be stored in Git LFS.
 
 ### Install Golang
 
-You need to install Golang in order to modify the sample chaincode provided here as well as to develop and compile your own chaincode.
+You need to install Golang (Go) in order to modify the sample chaincode provided here as well as to develop and compile your own chaincode.
 
-To install Golang... 
+To install Golang, follow the instructions [here](https://golang.org/dl/) to download and isntall the latest version of Go.
 
-XXXXXX ADD HERE XXXXXX
-
-Make sure to also set up your `$GOPATH` environment variable before proceeding.
+Make sure to also set up your `$GOPATH` environment variable before proceeding as is described in the installation instructions [here](https://golang.org/doc/install).
 
 ### Install Node.js And NPM
 
-You need to install Node.js and NPM in order to run the web application that is provided with this repository and all of it's dependencies. The appication provided here is written in Node.js and uses the [Hyperledger Fabric Client](https://www.npmjs.com/package/hfc) package from npm.
+You need to install Node.js and NPM in order to run the web application that is provided with this repository. The appication provided here is written in Node.js and uses the [Hyperledger Fabric Client](https://www.npmjs.com/package/hfc) package from NPM.
 
-To install Node.js and NPM...
+To install Node.js and NPM, download the appropriate installerf from [here](https://nodejs.org/en/download/). Node comes with NPM alrady installed, but npm gets updated more frequently than Node does, so you'll want to make sure it's the latest version by executing the following command.
 
-XXXXXX ADD HERE XXXXXX
+	npm install npm@latest -g
 
 ### Install Docker Toolbox
 
-You need to install Docker Toolbox in order to be able to run the Hyperledger Fabric peer and member services (CA) Docker images on your machine.
+You need to install Docker Toolbox in order to be able to run the Hyperledger Fabric peer and member services Docker containers on your machine.
 
-To download and isntall Docker Toolbox, which includes both Docker Engine and Compose, go [here](https://www.docker.com/products/docker-toolbox) and complete the set up process.
+To download and install Docker Toolbox, which includes both Docker Engine and Compose, go [here](https://www.docker.com/products/docker-toolbox) and complete the set up process. If you would like a more step-by step guide on how to install Docker Toolbox, the instructions [here](https://getcarina.com/docs/tutorials/docker-install-mac/) are also very helpful.
 
-If you would like a more step-by step guide on how to install Docker Toolbox, follow the instructions [here](https://getcarina.com/docs/tutorials/docker-install-mac/).
-
-Once you have installed Docker Toolbox, you should see the following two icons in you Mac's Applications view.
-
-// Put images of the two icons here //
-
-XXXXXX ADD HERE XXXXXX
+Once you have installed Docker Toolbox, you should see the following two icons in you Mac's Applications view: (1) Docker Quick Start Terminal and (2) Kinematic (Beta). 
 
 Start up the `default` Docker host by clicking on the Docker Quickstart Terminal.
 
-It will open a new terminal window and initialize the Docker host. Once the startup process is complete, you will see the cute Docker whale together with the IP address of the Docker host, in this example is `192.168.99.100`. Take note of this IP address as you will need it later to connect to your Docker containers.
+It will open a new terminal window and initialize the Docker host. Once the startup process is complete, you will see the cute Docker whale together with the IP address of the Docker host, in this example it is `192.168.99.100`. Take note of this IP address as you will need it later to connect to your Docker containers.
 
 ```
                         ##         .
@@ -87,13 +77,13 @@ For help getting started, check out the docs at https://docs.docker.com
 
 From the command line of your Docker Quickstart Terminal:
 
-(1) Clone the `fabric-images` repository and set the appropriate environment
+(1) Clone the `fabric-images` repository and set the appropriate environment settings.
 
 	git clone https://github.com/IBM-Blockchain/fabric-images.git
 	cd fabric-images/docker-compose
 	. setenv.sh
 
-(2) Start either a single peer with CA network or a four peer with CA network:
+(2) Start either a single peer with membership services network or a four peer with with membership services network:
 
 	docker-compose -f single-peer-ca.yaml up
 	
@@ -103,7 +93,7 @@ or
 	
 When the network comes up, you should see logging information from the peer nodes on your screen.
 
-The official Dockerhub documentation for these images can be found [here](https://hub.docker.com/r/ibmblockchain/fabric-peer/). That page contains additional information on configuring the network, usage samples, and helpful Docker commands. Definitely check it out when you start working on more complex applications.
+The official Dockerhub documentation for these images can be found [here](https://hub.docker.com/r/ibmblockchain/fabric-peer/). That page contains additional information on configuring the network, usage samples, and helpful Docker commands. Definitely check it out when you are ready start working on more complex applications.
 
 ## Verify The Fabric Network
 
@@ -190,17 +180,17 @@ curl 192.168.99.100:7050/network/peers
 
 Now that the Fabric network is up and running, you have to set up your chaincode in an apropriate local directory, so the Node.js [`hfc`](https://www.npmjs.com/package/hfc) module can locate it.
 
-Given that our chaincode is written in Go, we follow the Go convension of storing Go code underneath the `$GOPATH/src/` directory. Therefore, move the sample chaincode, `crowd_fund_chaincode` underneath `$GOPATH/src/` and unzip the `vendor` folder with the following commands. From the root directory of this repository:
+Given that our chaincode is written in Go, we follow the Go convension of storing Go code underneath the `$GOPATH/src/` directory. Therefore, move the sample chaincode, `crowd_fund_chaincode` underneath `$GOPATH/src/` and unzip the `vendor.zip` archive with the following commands. From the root directory of this repository:
 
 	cp -r crowd_fund_chaincode $GOPATH/src
-	tar -xvf $GOPATH/src/crowd_fund_chaincode/vendor.zip -C $GOPATH/src/crowd_fund_chaincode/
+	tar -xf $GOPATH/src/crowd_fund_chaincode/vendor.zip -C $GOPATH/src/crowd_fund_chaincode/
 	rm $GOPATH/src/crowd_fund_chaincode/vendor.zip
 	 
 That's it! The chaincode is now ready to be deployed by the application.
 
 ## Run The Application
 
-Now that the chaincode has been set up in the appropriate directory, it is time to run the application code. The sample application will enroll an administrative user, `WebAppAdmin`, which is pre-registered with the CA. Think of this user as a "boot strap user" that is given special priveleges. These privileges allow the `WebAppAdmin` user to register and enroll other new users. Next, the application will dynamically register an enroll a new user, `WebApp_user1` with the help of `WebAppAdmin`. This new user `WebApp_user1` then deploys the chaincode.
+Now that the chaincode has been set up in the appropriate directory, it is time to run the application code. The sample application will enroll an administrative user, `WebAppAdmin`, which is pre-registered with the membership services. Think of this user as a "boot strap user" that is given special priveleges. These privileges allow the `WebAppAdmin` user to register and enroll other new users. Next, the application will dynamically register an enroll a new user, `WebApp_user1` with the help of `WebAppAdmin`. This new user `WebApp_user1` then deploys the chaincode.
 
 In order to run the application, execute the following commands for either the single peer network or the four peer network. From the root directory of this repository:
 
@@ -239,13 +229,30 @@ WebApp is now listening on port 3000
 
 ## Hook Up Front End
 
-Now that the chaincode is ready to receive transactions, you can start up the client side code in your browser and give it a try. As mentioned before, the front end of this sample is very simple and exists only for the purpose of explaining how the entire application fits together.
+Now that the chaincode is ready to receive transactions, you can start up the client side code in your browser and give it a try. The front end of this sample is extremely simple and exists only for the purpose of explaining how the entire application fits together.
 
-To trigger transations from the web application front end, simply open the `index.html` file at the root of this repository in your browser. Then click on the buttons. You will observe that as you add more money to the account, the account value increases accordingly. How cool is that :-D!
+To trigger transations from the web application front end, simply open the `index.html` file at the root of this repository in your browser by double clicking it. The application presented here is a crowd funding application, where users can add more money to an account by sending a transaction. You can see the current value of the account by clicking the `Get Account Value` button and you can deposit more funds into the account by specifying the amount and clicking `Donate`. Give it a try and you will observe that as you add more money to the account, the account value increases accordingly. And now it is recorded on your local blockchain. How cool is that :-D! To convince yourself that you are actually sending transactions when you click the buttons, take a look at the console output of your application, which will show a new message every time yout rigger an invoke or a query.
+
+```
+Successfully submitted chaincode invoke transaction: request={"chaincodeID":"a657eb0787d4622b46a93ba4d16731dbea7facaab016740679f9ca9d5486e841","fcn":"invoke","args":["account","50"]}, response={"uuid":"1b0387ac-d32a-4a57-a2eb-9b508c34d3f0"}
+Successfully queried existing chaincode state: request={"chaincodeID":"a657eb0787d4622b46a93ba4d16731dbea7facaab016740679f9ca9d5486e841","fcn":"query","args":["account"]}, response={"result":{"type":"Buffer","data":[51,48,48]}}, value=300
+```
+
+Also, you may once again use the peer REST interface to query the `/chain` endpoint. You will observe that the block height will continue to increase.
+
+```
+curl 192.168.99.100:7050/chain
+
+{
+  "height": 5,
+  "currentBlockHash": "0JdJ94OPYwQnitPaMzUG1jpvuhdBSF/ueNJJ6t4rDJNKYp0kvwJhMiEzXEWerBigrHdQ5Uo4L2V6f0WT/gnuPA==",
+  "previousBlockHash": "QSiwvarJFsNTQr5vGIwTNamnVAqf/qZE+lxILs8/l2kMBvTVru9LLYh09WCBDgdwormREhC0PgA8VjwlZKOPEg=="
+}
+```
 
 ## Get Creative!
 
-Now it's your turn! Do you have a cool idea that you'd like to build into a chaincode (smart contract)? If so, just start modifying the existing chaincode sample and get going!
+Now it's your turn! Do you have a cool idea that you'd like to prototype as a chaincode (smart contract)? If so, just start modifying the existing chaincode sample and get going! The sample is now be located in your `$GOPATH/src/crowd_fund_chaincode` directory on your machine.
 
 While thinking of other cool ideas you may want to stop and tear down your network. You would also need to do that if you want to switch from the single peer to the four peer network or if you just run into some trouble with the network and need to start over. In that case, use the following commands:
 
@@ -256,6 +263,6 @@ Then restart the Fabric network as described in an [earlier section](#start-a-fa
 
 ## Need Help?
 
-If these instructions have been helpful in getting you off the ground, great! If you're still hitting some snags, feel free to reach out to me on [Hyperledger Slack](https://hyperledgerproject.slack.com/). My handle is `@anya`. Oh, and by the way, the entire Hyperledger community is very helpful with helping people get started! So you may join SDK related channels on Slack such as `#fabric-sdk` and `#fabric-sdk-node`.
+If these instructions have been helpful in getting you off the ground, great! If you're still hitting some snags, feel free to reach out to me on [Hyperledger Slack](https://hyperledgerproject.slack.com/). My handle is `@anya`. You can also open an issue in this repository to let me know that you found a problem. Oh, and by the way, the entire Hyperledger community is very helpful getting people started with Hyperledger Fabric. So you may join the appropriate channels on Slack and ask your questions!
 
 **Happy Building!**
