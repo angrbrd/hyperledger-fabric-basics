@@ -28,7 +28,7 @@ This tutorial requires you to install:
 
 ### Install Git
 
-You need to install Git in order to clone the repository containing the  Docker images for running the Hyperledger Fabric as well as the sample program in this repository. 
+You need to install Git in order to clone the repository containing the  Docker images for running the Hyperledger Fabric network as well as the sample program in this repository. 
 
 To install Git, follow the instructions [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) for the specific system that you are running on. Next, install the Git Large File Storage (Git LFS) plug-in from [here](https://git-lfs.github.com/) as the chaincode dependency file (`vendor.zip`) you will be downloading from this repository is quite large and had to be stored in Git LFS.
 
@@ -276,7 +276,7 @@ curl 192.168.99.100:7050/chain
 
 Now it's your turn! Do you have a cool idea that you'd like to prototype as a chaincode (smart contract)? If so, just start modifying the existing chaincode sample and get going! The sample is now located in your `$GOPATH/src/crowd_fund_chaincode` directory on your machine.
 
-While thinking of other cool ideas you may want to stop and tear down your network. You would also need to do that if you want to switch from the single peer to the four peer network or if you just run into some trouble with the network and need to start over. In that case, use the following commands:
+While thinking of other cool ideas you may want to stop and tear down your network. You would also need to do that if you want to switch from the single peer to the four peer network or if you just run into trouble with the network and need to start over. In that case, use the following commands:
 
 	docker stop $(docker ps -a -q)
 	docker rm -f $(docker ps -aq)
