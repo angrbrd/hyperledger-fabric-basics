@@ -2,9 +2,9 @@
 
 ## Overview
 
-This tutorial was presented as the demo at All Things Open 2016 conference to accompany my talk found [here](All_Things_Open_v10262016.pdf).
+This tutorial was presented as part of my presentation at All Things Open 2016 conference. My presentation focused on blockchain applications, and specifically, getting started with building an application with [Hyperledger Fabric](https://github.com/hyperledger/fabric). You can take a look at the presentation slides [here](All_Things_Open_v10262016.pdf).
 
-The goal of this tutorial is to show you how to get started writing applications and chaincode (smart contracts) for the [Hyperledger](https://www.hyperledger.org/) Fabric network in your local development environment. If you are looking for more information on Hyperledger Fabric and interested to contribute to the project, a good place to start is the [official documentation](http://hyperledger-fabric.readthedocs.io/en/latest/).
+The goal of this tutorial is to show you how to get started writing applications and chaincode (smart contracts) for the [Hyperledger](https://www.hyperledger.org/) Fabric network in your local development environment (as opposed to developing against a remote network). If you are looking for more information on Hyperledger Fabric and are interested to contribute to the project, a good place to start is the [official documentation](http://hyperledger-fabric.readthedocs.io/en/latest/).
 
 **Note:** The following instructions were written and tested on a Mac. Instructions may vary slightly if you run on a Windows or a Linux machine and I will add clarifications specific to other systems shortly. Please stay tuned! If you run into an issue with this tutorial, please feel free to open an issue in this repository or to reach out to me on [Hyperledger Slack](https://hyperledgerproject.slack.com/). My handle is `@anya`.
 
@@ -14,8 +14,9 @@ The goal of this tutorial is to show you how to get started writing applications
 4. [Set Up Chaincode](#set-up-chaincode)
 5. [Run The Application](#run-the-application)
 6. [Hook Up Front End](#hook-up-front-end)
-7. [Get Creative!](#get-creative)
-8. [Need Help?](#need-help)
+7. [Troubleshooting](#troubleshooting)
+8. [Get Creative!](#get-creative)
+9. [Need Help?](#need-help)
 
 ## Prerequisites
 
@@ -271,6 +272,63 @@ curl 192.168.99.100:7050/chain
   "previousBlockHash": "QSiwvarJFsNTQr5vGIwTNamnVAqf/qZE+lxILs8/l2kMBvTVru9LLYh09WCBDgdwormREhC0PgA8VjwlZKOPEg=="
 }
 ```
+
+##Troubleshooting
+
+If you are having an issue getting this tutorial up and running, please take a look at some common problems below. If none of the suggestions resolve what you are seeing, don't hesitate to comment or open an issue in this repository.
+
+### The vendor.zip Archive Is Empty
+
+If you notice that the `vendor.zip` archive discussed in the [Set Up Chaincode](#set-up-chaincode) section is empty when you unpack it, it is likely that you did not install the [Git Large File Storage](https://git-lfs.github.com/) (Git LFS) plug-in. The `vendor.zip` archive had to be stored in Git LFS as it was too large to be stored in GitHub itself.
+
+To resolve this issue, please remove the `vendor.zip` archive in your current local repository, install Git Large File Storage (Git LFS) plug-in from [here](https://git-lfs.github.com/), and then issue another `git pull` on this repository. Now it will download the `vendor.zip` file from Git LFS.
+
+### Seeing "Error: ENOENT: no such file or directory"
+
+If you are starting up the application code as described in [Run The Application](#run-the-application) section and seeing the error below, that most likely means that your `$GOPATH` environment variable is not set up.
+
+```
+Deploying chaincode now...
+Exiting and disconnecting eventHub channel.
+fs.js:808
+  return binding.readdir(pathModule._makeLong(path));
+                 ^
+
+Error: ENOENT: no such file or directory, scandir 'undefined/src//crowd_fund_chaincode'
+    at Error (native)
+    at Object.fs.readdirSync (fs.js:808:18)
+    at Object.GenerateDirectoryHash (/Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/sdk_util.js:92:26)
+    at TransactionContext.newNetModeTransaction (/Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/hfc.js:1380:25)
+    at TransactionContext.newBuildOrDeployTransaction (/Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/hfc.js:1274:18)
+    at /Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/hfc.js:990:18
+    at /Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/hfc.js:1179:20
+    at /Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/hfc.js:1723:17
+    at Object.callback (/Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/lib/hfc.js:2109:13)
+    at /Users/anya/dev/github/hyperledger-fabric-basics/node_modules/hfc/node_modules/grpc/src/node/src/client.js:422:14
+```
+
+To resolve this issue, set your `$GOPATH` environment variable with the command below.
+
+	export GOPATH=/path/to/your/Go/workspace
+	
+Then you should insure that the directory containing your chaincode is placed in `$GOPATH/src` per the instructions in the [Set Up Chaincode](#set-up-chaincode) section.
+
+### Seeing "Error: sql: no rows in result set"
+
+If you are starting up the application code per the instructions in the [Run The Application](#run-the-application) section and seeing the error below, that most likely means that there was an issue obtaining transaction certificates from the the membership service.
+
+```
+Deploying chaincode now...
+ERROR: Failed to deploy chaincode: request={"chaincodePath":"crowd_fund_chaincode","fcn":"init","args":["account","0"]}, error={"error":{"code":2,"metadata":{"_internal_repr":{}}},"msg":"Error: sql: no rows in result set"}
+Exiting and disconnecting eventHub channel.
+```
+
+To resolve this issue, you must restart the membership service. Since all of the validating peers are also registered and enrolled with the membership service, that implies that you must restart the entire network. Stop and remove all of the associated docker containers with the commands below.
+
+	docker stop $(docker ps -a -q)
+	docker rm -f $(docker ps -aq)
+	
+Subsequently, restart the network as described here in the [Start A Fabric Network](#start-a-fabric-network) section.
 
 ## Get Creative!
 
